@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  client:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        working-directory: client
+        run: npm ci
+      - name: Lint
+        working-directory: client
+        run: npm run lint
+      - name: Build
+        working-directory: client
+        run: npm run build
+
+  server:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        working-directory: server
+        run: npm ci
+      - name: Syntax check
+        working-directory: server
+        run: |
+          for f in *.js; do node --check "$f"; done
+          find models utils -name '*.js' -exec node --check {} \;
